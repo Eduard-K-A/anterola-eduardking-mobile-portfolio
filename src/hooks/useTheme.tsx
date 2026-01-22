@@ -18,12 +18,14 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
   const colorScheme = useColorScheme();
   const [isDarkMode, setIsDarkMode] = useState(colorScheme === 'dark');
 
+  // Sync theme with device preference
   useEffect(() => {
     if (colorScheme) {
       setIsDarkMode(colorScheme === 'dark');
     }
   }, [colorScheme]);
 
+  // Toggle between light and dark mode
   const toggleTheme = () => {
     setIsDarkMode((prev) => !prev);
   };
@@ -37,6 +39,7 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
   );
 };
 
+// Hook to access theme context - throws error if used outside ThemeProvider
 export const useTheme = (): ThemeContextType => {
   const context = useContext(ThemeContext);
   if (!context) {

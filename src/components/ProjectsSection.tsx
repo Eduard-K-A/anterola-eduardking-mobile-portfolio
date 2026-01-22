@@ -21,6 +21,7 @@ interface ProjectItemProps {
   url?: string;
 }
 
+// Projects displayed in horizontal carousel
 const PROJECTS: ProjectItemProps[] = [
   {
     id: '1',
@@ -80,6 +81,7 @@ const ProjectCard = ({
   accentColor,
   borderColor,
 }: ProjectCardProps) => {
+  // Calculate card width (85% of screen)
   const screenWidth = Dimensions.get('window').width;
   const cardWidth = screenWidth * 0.85;
 
@@ -121,6 +123,7 @@ const ProjectCard = ({
         {item.description}
       </Text>
 
+      {/* Open project URL in browser */}
       <TouchableOpacity
         onPress={() => {
           if (item.url) {
@@ -142,6 +145,7 @@ const ProjectCard = ({
 
 export const ProjectsSection = ({ onLayout }: ProjectsSectionProps) => {
   const { colors } = useTheme();
+  // Calculate card width for snap-to-interval behavior (85% of screen + spacing)
   const screenWidth = Dimensions.get('window').width;
   const cardWidth = screenWidth * 0.85;
 
@@ -164,6 +168,7 @@ export const ProjectsSection = ({ onLayout }: ProjectsSectionProps) => {
         Projects
       </Text>
 
+      {/* Horizontal carousel with snap-to-scroll */}
       <FlatList
         data={PROJECTS}
         keyExtractor={(item) => item.id}

@@ -15,6 +15,7 @@ interface NavigationBarProps {
   activeSection: string;
 }
 
+// Navigation sections that users can navigate to
 const SECTIONS = ['About', 'Skills', 'Projects', 'Contact'];
 
 export const NavigationBar = ({ onNavigate, activeSection }: NavigationBarProps) => {
@@ -30,6 +31,7 @@ export const NavigationBar = ({ onNavigate, activeSection }: NavigationBarProps)
         },
       ]}
     >
+      {/* Horizontal scrollable navigation */}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -42,6 +44,7 @@ export const NavigationBar = ({ onNavigate, activeSection }: NavigationBarProps)
             onPress={() => onNavigate(section)}
             style={styles.buttonContainer}
           >
+            {/* Active section is bold and uses accent color */}
             <Text
               style={[
                 styles.buttonText,
@@ -54,6 +57,7 @@ export const NavigationBar = ({ onNavigate, activeSection }: NavigationBarProps)
             >
               {section}
             </Text>
+            {/* Underline indicator for active section */}
             {activeSection === section && (
               <View
                 style={[

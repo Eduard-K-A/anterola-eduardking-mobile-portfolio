@@ -23,6 +23,7 @@ interface ContactIconProps {
   accentColor: string;
 }
 
+// Reusable contact icon button
 const ContactIcon = ({
   label,
   icon,
@@ -68,14 +69,17 @@ const ContactIcon = ({
 export const ContactSection = ({ onLayout }: ContactSectionProps) => {
   const { colors } = useTheme();
 
+  // Open default email client
   const handleEmailPress = () => {
     Linking.openURL('mailto:eduardkinganterola@gmail.com');
   };
 
+  // Open GitHub profile
   const handleGitHubPress = () => {
     Linking.openURL('https://github.com/Eduard-K-A');
   };
 
+  // Open LinkedIn profile
   const handleLinkedInPress = () => {
     Linking.openURL('https://www.linkedin.com/in/eduard-king-anterola');
   };

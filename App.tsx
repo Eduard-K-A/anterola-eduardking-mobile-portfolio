@@ -22,6 +22,7 @@ function AppContent() {
   const { colors } = useTheme();
   const scrollViewRef = useRef<ScrollView>(null);
   const [activeSection, setActiveSection] = useState('About');
+  // Track Y-position of each section for scroll navigation
   const [sectionLayouts, setSectionLayouts] = useState<SectionLayout>({
     About: 0,
     Skills: 0,
@@ -29,6 +30,7 @@ function AppContent() {
     Contact: 0,
   });
 
+  // Capture section Y-position when it renders
   const handleSectionLayout = (section: keyof SectionLayout) => (event: LayoutChangeEvent) => {
     const { y } = event.nativeEvent.layout;
     setSectionLayouts((prev) => ({
@@ -37,6 +39,7 @@ function AppContent() {
     }));
   };
 
+  // Navigate to section by scrolling to its position
   const handleNavigate = (section: string) => {
     setActiveSection(section);
     const yOffset = sectionLayouts[section as keyof SectionLayout] || 0;

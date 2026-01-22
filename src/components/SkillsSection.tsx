@@ -16,6 +16,7 @@ interface SkillCategory {
   tools: string[];
 }
 
+// Skills organized by category
 const SKILLS: SkillCategory = {
   all: [
     'React Native',
@@ -160,8 +161,10 @@ const FilterButton = ({
 
 export const SkillsSection = ({ onLayout }: SkillsSectionProps) => {
   const { colors } = useTheme();
+  // Track active skill category
   const [activeCategory, setActiveCategory] = useState<SkillCategoryKey>('all');
 
+  // Get skills for active category
   const currentSkills = SKILLS[activeCategory];
 
   return (
@@ -183,7 +186,7 @@ export const SkillsSection = ({ onLayout }: SkillsSectionProps) => {
         Skills
       </Text>
 
-      {/* Category Filter */}
+      {/* Category filter buttons */}
       <View style={styles.filterContainer}>
         {CATEGORIES.map((category) => (
           <FilterButton
@@ -200,7 +203,7 @@ export const SkillsSection = ({ onLayout }: SkillsSectionProps) => {
         ))}
       </View>
 
-      {/* Skills Grid */}
+      {/* Display skills for active category */}
       <View style={styles.skillsContainer}>
         {currentSkills.map((skill, index) => (
           <SkillChip
