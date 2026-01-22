@@ -50,6 +50,13 @@ const PROJECTS: ProjectItemProps[] = [
     image: require('../assets/study-spot.png'),
     url:'https://anterola-midterm-project.vercel.app/'
   },
+  {
+    id: '5',
+    title: 'CleanOps',
+    description: 'A web app for managing cleaning services and smart scheduling features',
+    image: require('../assets/clean-ops.png'), 
+    url:'https://clean-ops-alpha.vercel.app/'
+  }
 ];
 
 interface ProjectsSectionProps {
