@@ -15,6 +15,7 @@ export default function Header() {
         },
       ]}
     >
+       <Text style={[styles.headerText, { color: colors.text }]}>Eduard King Anterola</Text>
       {/* Theme toggle: moon for light mode, sun for dark mode */}
       <TouchableOpacity
         onPress={toggleTheme}
