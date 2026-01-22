@@ -3,10 +3,12 @@ import {
   View,
   Text,
   StyleSheet,
+  Image,
   FlatList,
   TouchableOpacity,
   LayoutChangeEvent,
   Dimensions,
+  Linking
 } from 'react-native';
 import { useTheme } from '../hooks/useTheme';
 import { SPACING, TYPOGRAPHY, BORDER_RADIUS } from '../constants/theme';
@@ -15,33 +17,38 @@ interface ProjectItemProps {
   id: string;
   title: string;
   description: string;
-  image?: string;
+  image: any;
+  url?: string;
 }
 
 const PROJECTS: ProjectItemProps[] = [
   {
     id: '1',
-    title: 'E-Commerce App',
-    description: 'A full-featured mobile shopping application with payment integration',
-    image: 'https://images.unsplash.com/photo-1512941691920-25bda36dc643?w=200&h=200&fit=crop',
+    title: 'Luxe Stay',
+    description: 'A full-featured hotel reservation application with payment integration',
+    image: require('../assets/luxe-stay.png'),
+    url:'https://webdev-finals-frontend.vercel.app/'
   },
   {
     id: '2',
-    title: 'Task Manager',
-    description: 'Real-time task management app with cloud synchronization',
-    image: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=200&h=200&fit=crop',
+    title: 'Flur-Chat',
+    description: 'A web-based AI chat application with real-time messaging features',
+    image: require('../assets/flur-chat.png'),
+    url:'https://flur-chat.vercel.app/'
   },
   {
     id: '3',
-    title: 'Social Network',
-    description: 'Connect with friends, share moments, and build communities',
-    image: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=200&h=200&fit=crop',
+    title: 'Pinoy Recipe Finder',
+    description: 'A web app to discover traditional Filipino recipes',
+    image: require('../assets/pinoy-recipe-finder.png'),
+    url:'https://anterola-recipe-finder.vercel.app/'
   },
   {
     id: '4',
-    title: 'Fitness Tracker',
-    description: 'Monitor health metrics and achieve your fitness goals',
-    image: 'https://images.unsplash.com/photo-1516321318423-f06f70a504f0?w=200&h=200&fit=crop',
+    title: 'StudySpot PH',
+    description: 'A web app to find and book study spaces in the Philippines',
+    image: require('../assets/study-spot.png'),
+    url:'https://anterola-midterm-project.vercel.app/'
   },
 ];
 
@@ -67,7 +74,7 @@ const ProjectCard = ({
   borderColor,
 }: ProjectCardProps) => {
   const screenWidth = Dimensions.get('window').width;
-  const cardWidth = screenWidth - SPACING.lg * 2 - SPACING.md;
+  const cardWidth = screenWidth * 0.85;
 
   return (
     <View
@@ -80,6 +87,11 @@ const ProjectCard = ({
         },
       ]}
     >
+      <Image
+        source={item.image}
+        style={styles.cardImage}
+      />
+
       <Text
         style={[
           styles.cardTitle,
@@ -103,6 +115,11 @@ const ProjectCard = ({
       </Text>
 
       <TouchableOpacity
+        onPress={() => {
+          if (item.url) {
+            Linking.openURL(item.url);
+          }
+        }}
         style={[
           styles.viewButton,
           {
@@ -118,6 +135,8 @@ const ProjectCard = ({
 
 export const ProjectsSection = ({ onLayout }: ProjectsSectionProps) => {
   const { colors } = useTheme();
+  const screenWidth = Dimensions.get('window').width;
+  const cardWidth = screenWidth * 0.85;
 
   return (
     <View
@@ -144,6 +163,9 @@ export const ProjectsSection = ({ onLayout }: ProjectsSectionProps) => {
         horizontal
         showsHorizontalScrollIndicator={false}
         scrollEventThrottle={16}
+        snapToInterval={cardWidth + SPACING.lg}
+        decelerationRate="fast"
+        snapToAlignment="start"
         contentContainerStyle={styles.listContainer}
         renderItem={({ item }) => (
           <ProjectCard
@@ -155,6 +177,7 @@ export const ProjectsSection = ({ onLayout }: ProjectsSectionProps) => {
             borderColor={colors.border}
           />
         )}
+        ItemSeparatorComponent={() => <View style={{ width: SPACING.lg }} />}
       />
     </View>
   );
@@ -163,21 +186,26 @@ export const ProjectsSection = ({ onLayout }: ProjectsSectionProps) => {
 const styles = StyleSheet.create({
   container: {
     paddingVertical: SPACING.xxl,
-    paddingHorizontal: SPACING.lg,
   },
   title: {
     ...TYPOGRAPHY.h2,
     marginBottom: SPACING.xl,
+    paddingHorizontal: SPACING.lg,
   },
   listContainer: {
-    paddingRight: SPACING.lg,
-    gap: SPACING.lg,
+    paddingHorizontal: SPACING.lg,
   },
   card: {
     borderRadius: BORDER_RADIUS.lg,
     borderWidth: 1,
     padding: SPACING.lg,
     gap: SPACING.md,
+  },
+  cardImage: {
+    width: '100%',
+    height: 180,
+    borderRadius: BORDER_RADIUS.md,
+    marginBottom: SPACING.md,
   },
   cardTitle: {
     ...TYPOGRAPHY.h4,
