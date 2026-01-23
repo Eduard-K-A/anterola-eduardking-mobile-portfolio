@@ -6,6 +6,8 @@ import {
   TouchableOpacity,
   LayoutChangeEvent,
   Linking,
+  Platform,
+  Animated,
 } from 'react-native';
 import { useTheme } from '../hooks/useTheme';
 import { SPACING, TYPOGRAPHY, BORDER_RADIUS } from '../constants/theme';
@@ -14,82 +16,98 @@ interface ContactSectionProps {
   onLayout: (event: LayoutChangeEvent) => void;
 }
 
-interface ContactIconProps {
+interface ContactItemProps {
   label: string;
   icon: string;
-  onPress: () => void;
+  value: string;
+  url: string;
   backgroundColor: string;
   textColor: string;
   accentColor: string;
+  accentLight: string;
 }
 
-// Reusable contact icon button
-const ContactIcon = ({
+// Reusable contact item
+const ContactItem = ({
   label,
   icon,
-  onPress,
+  value,
+  url,
   backgroundColor,
   textColor,
   accentColor,
-}: ContactIconProps) => (
-  <TouchableOpacity
-    onPress={onPress}
-    style={[
-      styles.iconButton,
-      {
-        backgroundColor: backgroundColor,
-        borderColor: accentColor,
-      },
-    ]}
-  >
-    <Text
-      style={[
-        styles.iconText,
-        {
-          color: accentColor,
-          fontSize: 24,
-        },
-      ]}
+  accentLight,
+}: ContactItemProps) => {
+  const scaleAnim = React.useRef(new Animated.Value(1)).current;
+
+  const handlePressIn = () => {
+    Animated.timing(scaleAnim, {
+      toValue: 0.95,
+      duration: 150,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    Animated.timing(scaleAnim, {
+      toValue: 1,
+      duration: 150,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handlePress = () => {
+    Linking.openURL(url);
+  };
+
+  return (
+    <Animated.View
+      style={{
+        transform: [{ scale: scaleAnim }],
+      }}
     >
-      {icon}
-    </Text>
-    <Text
-      style={[
-        styles.iconLabel,
-        {
-          color: textColor,
-        },
-      ]}
-    >
-      {label}
-    </Text>
-  </TouchableOpacity>
-);
+      <TouchableOpacity
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        onPress={handlePress}
+        activeOpacity={0.7}
+        style={[
+          styles.contactItem,
+          {
+            backgroundColor: accentLight,
+            borderColor: accentColor,
+          },
+        ]}
+        accessibilityLabel={`${label}: ${value}`}
+        accessibilityRole="button"
+        accessibilityHint={`Opens ${label}`}
+      >
+        <Text style={styles.contactIcon}>{icon}</Text>
+        <View style={styles.contactContent}>
+          <Text style={[styles.contactLabel, { color: textColor }]}>
+            {label}
+          </Text>
+          <Text
+            style={[styles.contactValue, { color: accentColor }]}
+            numberOfLines={1}
+          >
+            {value}
+          </Text>
+        </View>
+      </TouchableOpacity>
+    </Animated.View>
+  );
+};
 
 export const ContactSection = ({ onLayout }: ContactSectionProps) => {
   const { colors } = useTheme();
-
-  // Open default email client
-  const handleEmailPress = () => {
-    Linking.openURL('mailto:eduardkinganterola@gmail.com');
-  };
-
-  // Open GitHub profile
-  const handleGitHubPress = () => {
-    Linking.openURL('https://github.com/Eduard-K-A');
-  };
-
-  // Open LinkedIn profile
-  const handleLinkedInPress = () => {
-    Linking.openURL('https://www.linkedin.com/in/eduard-king-anterola');
-  };
 
   return (
     <View
       onLayout={onLayout}
       style={[
         styles.container,
-        { backgroundColor: colors.surface },
+        { backgroundColor: colors.background },
       ]}
     >
       <Text
@@ -114,61 +132,38 @@ export const ContactSection = ({ onLayout }: ContactSectionProps) => {
         Let's connect and create something amazing together
       </Text>
 
-      <View style={styles.iconContainer}>
-        <ContactIcon
+      <View style={styles.itemsContainer}>
+        <ContactItem
           label="Email"
           icon="✉️"
-          onPress={handleEmailPress}
-          backgroundColor={colors.accentLight}
+          value="eduardkinganterola@gmail.com"
+          url="mailto:eduardkinganterola@gmail.com"
+          backgroundColor={colors.surface}
           textColor={colors.text}
           accentColor={colors.accent}
+          accentLight={colors.accentLight}
         />
-        <ContactIcon
+        <ContactItem
           label="GitHub"
           icon="🔗"
-          onPress={handleGitHubPress}
-          backgroundColor={colors.accentLight}
+          value="Eduard-K-A"
+          url="https://github.com/Eduard-K-A"
+          backgroundColor={colors.surface}
           textColor={colors.text}
           accentColor={colors.accent}
+          accentLight={colors.accentLight}
         />
-        <ContactIcon
+        <ContactItem
           label="LinkedIn"
-          icon="👤"
-          onPress={handleLinkedInPress}
-          backgroundColor={colors.accentLight}
+          icon="💼"
+          value="Eduard King Anterola"
+          url="https://www.linkedin.com/in/eduard-king-anterola"
+          backgroundColor={colors.surface}
           textColor={colors.text}
           accentColor={colors.accent}
+          accentLight={colors.accentLight}
         />
       </View>
-
-      <View
-        style={[
-          styles.divider,
-          { backgroundColor: colors.divider },
-        ]}
-      />
-
-      <Text
-        style={[
-          styles.footer,
-          {
-            color: colors.textTertiary,
-          },
-        ]}
-      >
-        © 2026 Eduard King. All rights reserved.
-      </Text>
-
-      <Text
-        style={[
-          styles.footerSubtext,
-          {
-            color: colors.textTertiary,
-          },
-        ]}
-      >
-        Designed and built with care
-      </Text>
     </View>
   );
 };
@@ -183,46 +178,49 @@ const styles = StyleSheet.create({
     ...TYPOGRAPHY.h2,
     marginBottom: SPACING.md,
     textAlign: 'center',
+    fontWeight: '700',
   },
   subtitle: {
     ...TYPOGRAPHY.body,
     marginBottom: SPACING.xl,
     textAlign: 'center',
   },
-  iconContainer: {
-    flexDirection: 'row',
-    gap: SPACING.lg,
-    marginBottom: SPACING.xxl,
-    justifyContent: 'center',
+  itemsContainer: {
+    width: '100%',
+    gap: SPACING.md,
   },
-  iconButton: {
-    width: 80,
-    height: 100,
+  contactItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: SPACING.lg,
     borderRadius: BORDER_RADIUS.lg,
     borderWidth: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: SPACING.sm,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 2,
+      },
+    }),
   },
-  iconText: {
-    fontWeight: '600',
+  contactIcon: {
+    fontSize: 24,
+    marginRight: SPACING.lg,
   },
-  iconLabel: {
+  contactContent: {
+    flex: 1,
+  },
+  contactLabel: {
     ...TYPOGRAPHY.label,
-  },
-  divider: {
-    width: '100%',
-    height: 1,
-    marginVertical: SPACING.xl,
-  },
-  footer: {
-    ...TYPOGRAPHY.body,
     fontWeight: '600',
-    textAlign: 'center',
-    marginBottom: SPACING.sm,
+    marginBottom: SPACING.xs,
   },
-  footerSubtext: {
+  contactValue: {
     ...TYPOGRAPHY.bodySmall,
-    textAlign: 'center',
+    fontWeight: '500',
   },
 });
