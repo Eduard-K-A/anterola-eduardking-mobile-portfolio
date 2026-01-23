@@ -5,9 +5,12 @@ import {
   StyleSheet,
   TouchableOpacity,
   LayoutChangeEvent,
+  Platform,
+  ScrollView,
+  Animated,
 } from 'react-native';
 import { useTheme } from '../hooks/useTheme';
-import { SPACING, TYPOGRAPHY, BORDER_RADIUS } from '../constants/theme';
+import { SPACING, TYPOGRAPHY, BORDER_RADIUS, SHADOWS } from '../constants/theme';
 
 interface SkillCategory {
   all: string[];
@@ -65,17 +68,16 @@ const SKILLS: SkillCategory = {
     'Postman',
     'GitHub Workflows',
     'Bun'
-
   ],
 };
 
 type SkillCategoryKey = 'all' | 'frontend' | 'backend' | 'tools';
 
-const CATEGORIES: { key: SkillCategoryKey; label: string }[] = [
-  { key: 'all', label: 'All' },
-  { key: 'frontend', label: 'Frontend' },
-  { key: 'backend', label: 'Backend' },
-  { key: 'tools', label: 'Tools' },
+const CATEGORIES: { key: SkillCategoryKey; label: string; icon: string }[] = [
+  { key: 'all', label: 'All', icon: '⭐' },
+  { key: 'frontend', label: 'Frontend', icon: '🎨' },
+  { key: 'backend', label: 'Backend', icon: '⚙️' },
+  { key: 'tools', label: 'Tools', icon: '🛠️' },
 ];
 
 interface SkillsSectionProps {
@@ -114,6 +116,7 @@ const SkillChip = ({ skill, backgroundColor, textColor, accentColor }: SkillItem
 
 interface FilterButtonProps {
   label: string;
+  icon: string;
   isActive: boolean;
   onPress: () => void;
   activeColor: string;
@@ -125,6 +128,7 @@ interface FilterButtonProps {
 
 const FilterButton = ({
   label,
+  icon,
   isActive,
   onPress,
   activeColor,
@@ -135,6 +139,7 @@ const FilterButton = ({
 }: FilterButtonProps) => (
   <TouchableOpacity
     onPress={onPress}
+    activeOpacity={0.7}
     style={[
       styles.filterButton,
       {
@@ -144,6 +149,7 @@ const FilterButton = ({
     ]}
   >
     <View style={styles.filterButtonContent}>
+      <Text style={styles.filterButtonIcon}>{icon}</Text>
       <Text
         style={[
           styles.filterButtonText,
@@ -161,10 +167,8 @@ const FilterButton = ({
 
 export const SkillsSection = ({ onLayout }: SkillsSectionProps) => {
   const { colors } = useTheme();
-  // Track active skill category
   const [activeCategory, setActiveCategory] = useState<SkillCategoryKey>('all');
 
-  // Get skills for active category
   const currentSkills = SKILLS[activeCategory];
 
   return (
@@ -172,7 +176,7 @@ export const SkillsSection = ({ onLayout }: SkillsSectionProps) => {
       onLayout={onLayout}
       style={[
         styles.container,
-        { backgroundColor: colors.surface },
+        { backgroundColor: colors.background },
       ]}
     >
       <Text
@@ -183,15 +187,21 @@ export const SkillsSection = ({ onLayout }: SkillsSectionProps) => {
           },
         ]}
       >
-        Skills
+        Technical Skills
       </Text>
 
       {/* Category filter buttons */}
-      <View style={styles.filterContainer}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.filterContainer}
+        contentContainerStyle={styles.filterContentContainer}
+      >
         {CATEGORIES.map((category) => (
           <FilterButton
             key={category.key}
             label={category.label}
+            icon={category.icon}
             isActive={activeCategory === category.key}
             onPress={() => setActiveCategory(category.key)}
             activeColor={colors.accent}
@@ -201,13 +211,13 @@ export const SkillsSection = ({ onLayout }: SkillsSectionProps) => {
             textSecondaryColor={colors.textSecondary}
           />
         ))}
-      </View>
+      </ScrollView>
 
       {/* Display skills for active category */}
       <View style={styles.skillsContainer}>
         {currentSkills.map((skill, index) => (
           <SkillChip
-            key={index}
+            key={`${activeCategory}-${index}`}
             skill={skill}
             backgroundColor={colors.accentLight}
             textColor={colors.accent}
@@ -215,6 +225,16 @@ export const SkillsSection = ({ onLayout }: SkillsSectionProps) => {
           />
         ))}
       </View>
+
+      {/* Skills count */}
+      <Text
+        style={[
+          styles.skillCount,
+          { color: colors.textTertiary },
+        ]}
+      >
+        {currentSkills.length} skills
+      </Text>
     </View>
   );
 };
@@ -226,20 +246,33 @@ const styles = StyleSheet.create({
   },
   title: {
     ...TYPOGRAPHY.h2,
-    marginBottom: SPACING.xl,
+    marginBottom: SPACING.lg,
+    fontWeight: '700',
   },
   filterContainer: {
-    flexDirection: 'row',
-    gap: SPACING.md,
     marginBottom: SPACING.xl,
-    paddingBottom: SPACING.lg,
-    borderBottomWidth: 1,
+    flexGrow: 0,
+  },
+  filterContentContainer: {
+    gap: SPACING.md,
+    paddingRight: SPACING.lg,
   },
   filterButton: {
     paddingVertical: SPACING.md,
     paddingHorizontal: SPACING.lg,
-    borderRadius: BORDER_RADIUS.md,
+    borderRadius: BORDER_RADIUS.pill,
     borderWidth: 1.5,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 2,
+      },
+      android: {
+        elevation: 1,
+      },
+    }),
   },
   filterButtonContent: {
     flexDirection: 'row',
@@ -251,7 +284,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   filterButtonIcon: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '700',
   },
   skillsContainer: {
@@ -259,6 +292,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'flex-start',
     gap: SPACING.md,
+    marginBottom: SPACING.lg,
   },
   chip: {
     paddingVertical: SPACING.sm,
@@ -269,6 +303,11 @@ const styles = StyleSheet.create({
   },
   chipText: {
     ...TYPOGRAPHY.bodySmall,
+    fontWeight: '500',
+  },
+  skillCount: {
+    ...TYPOGRAPHY.bodySmall,
+    textAlign: 'center',
     fontWeight: '500',
   },
 });
