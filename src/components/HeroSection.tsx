@@ -7,6 +7,8 @@ import {
   LayoutChangeEvent,
   Animated,
   Platform,
+  TouchableOpacity,
+  Linking,
 } from 'react-native';
 import { useTheme } from '../hooks/useTheme';
 import { SPACING, TYPOGRAPHY, BORDER_RADIUS, SHADOWS } from '../constants/theme';
@@ -120,7 +122,9 @@ export const HeroSection = ({ onLayout }: HeroSectionProps) => {
             marginTop: SPACING.xl,
           }}
         >
-          <View
+          <TouchableOpacity
+            onPress={() => Linking.openURL('mailto:eduardkinganterola@gmail.com')}
+            activeOpacity={0.7}
             style={[
               styles.ctaContainer,
               {
@@ -128,11 +132,14 @@ export const HeroSection = ({ onLayout }: HeroSectionProps) => {
                 borderColor: colors.accent,
               },
             ]}
+            accessibilityLabel="Send email: Available for opportunities"
+            accessibilityRole="button"
+            accessibilityHint="Opens your email client to contact Eduard"
           >
             <Text style={[styles.ctaText, { color: colors.accent }]}>
               📧 Available for opportunities
             </Text>
-          </View>
+          </TouchableOpacity>
         </Animated.View>
       </View>
     </View>
