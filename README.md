@@ -353,7 +353,7 @@ The theme persists automatically to AsyncStorage. To test:
 
 ## 👨‍💻 About
 
-Created by Eduard King Anterola - Full Stack Developer and Computer Science Student
+Created by Eduard King Anterola - Aspiring Software Engineer and Computer Science Student
 
 ## 📧 Contact
 
