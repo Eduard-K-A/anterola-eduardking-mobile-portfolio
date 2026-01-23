@@ -1,13 +1,15 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   Image,
   LayoutChangeEvent,
+  Animated,
+  Platform,
 } from 'react-native';
 import { useTheme } from '../hooks/useTheme';
-import { SPACING, TYPOGRAPHY, BORDER_RADIUS } from '../constants/theme';
+import { SPACING, TYPOGRAPHY, BORDER_RADIUS, SHADOWS } from '../constants/theme';
 
 interface HeroSectionProps {
   onLayout: (event: LayoutChangeEvent) => void;
@@ -15,6 +17,23 @@ interface HeroSectionProps {
 
 export const HeroSection = ({ onLayout }: HeroSectionProps) => {
   const { colors } = useTheme();
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const scaleAnim = useRef(new Animated.Value(0.8)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+      Animated.timing(scaleAnim, {
+        toValue: 1,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [fadeAnim, scaleAnim]);
 
   return (
     <View
@@ -25,50 +44,96 @@ export const HeroSection = ({ onLayout }: HeroSectionProps) => {
       ]}
     >
       <View style={styles.content}>
-        {/* Circular Profile Picture */}
-        <View style={styles.profileImageContainer}>
-          <Image
-            source={require('../assets/eduard.png')}
+        {/* Animated Profile Picture */}
+        <Animated.View
+          style={{
+            opacity: fadeAnim,
+            transform: [{ scale: scaleAnim }],
+            marginBottom: SPACING.xl,
+          }}
+        >
+          <View
             style={[
-              styles.profileImage,
-              { borderColor: colors.accent },
+              styles.profileImageContainer,
+              {
+                borderColor: colors.accent,
+              },
             ]}
-          />
-        </View>
+          >
+            <Image
+              source={require('../assets/eduard.png')}
+              style={styles.profileImage}
+              accessibilityLabel="Eduard King Anterola profile picture"
+            />
+            <View
+              style={[
+                styles.statusIndicator,
+                { backgroundColor: colors.success },
+              ]}
+            />
+          </View>
+        </Animated.View>
 
         {/* Name */}
-        <Text
+        <Animated.Text
           style={[
             styles.name,
             {
               color: colors.text,
+              opacity: fadeAnim,
             },
           ]}
         >
           Eduard King Anterola
-        </Text>
+        </Animated.Text>
 
-        {/* Bio */}
-        <Text
+        {/* Professional Title */}
+        <Animated.Text
           style={[
-            styles.bio,
+            styles.title,
             {
-              color: colors.textSecondary,
+              color: colors.accent,
+              opacity: fadeAnim,
             },
           ]}
         >
-          3rd Year Computer Science Student {'\n'}Aspiring Software Engineer
-        </Text>
-        <Text
+          Aspiring Software Engineer 
+        </Animated.Text>
+
+        {/* Bio Description */}
+        <Animated.Text
           style={[
             styles.bioDescription,
             {
-              color: colors.textTertiary,
+              color: colors.textSecondary,
+              opacity: fadeAnim,
             },
           ]}
         >
-          Passionate on developing useful and efficient software solutions to make life easier and more enjoyable.
-        </Text>
+          3rd Year Computer Science Student passionate about developing useful and efficient software solutions to make life easier and more enjoyable.
+        </Animated.Text>
+
+        {/* CTA Button */}
+        <Animated.View
+          style={{
+            opacity: fadeAnim,
+            marginTop: SPACING.xl,
+          }}
+        >
+          <View
+            style={[
+              styles.ctaContainer,
+              {
+                backgroundColor: colors.accentLight,
+                borderColor: colors.accent,
+              },
+            ]}
+          >
+            <Text style={[styles.ctaText, { color: colors.accent }]}>
+              📧 Available for opportunities
+            </Text>
+          </View>
+        </Animated.View>
       </View>
     </View>
   );
@@ -85,27 +150,62 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   profileImageContainer: {
-    marginBottom: SPACING.xl,
+    borderWidth: 3,
+    borderRadius: BORDER_RADIUS.circle,
+    padding: 4,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.15,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 5,
+      },
+    }),
   },
   profileImage: {
     width: 120,
     height: 120,
     borderRadius: BORDER_RADIUS.circle,
+  },
+  statusIndicator: {
+    position: 'absolute',
+    bottom: 8,
+    right: 8,
+    width: 20,
+    height: 20,
+    borderRadius: BORDER_RADIUS.circle,
     borderWidth: 3,
+    borderColor: '#FFFFFF',
   },
   name: {
     ...TYPOGRAPHY.h1,
-    marginBottom: SPACING.md,
+    marginBottom: SPACING.sm,
     textAlign: 'center',
   },
-  bio: {
-    ...TYPOGRAPHY.h4,
+  title: {
+    ...TYPOGRAPHY.h3,
+    fontWeight: '600',
     marginBottom: SPACING.lg,
     textAlign: 'center',
   },
   bioDescription: {
     ...TYPOGRAPHY.body,
     textAlign: 'center',
-    marginBottom: SPACING.lg,
+    lineHeight: 26,
+    maxWidth: '90%',
+  },
+  ctaContainer: {
+    paddingVertical: SPACING.md,
+    paddingHorizontal: SPACING.lg,
+    borderRadius: BORDER_RADIUS.lg,
+    borderWidth: 1.5,
+  },
+  ctaText: {
+    ...TYPOGRAPHY.body,
+    fontWeight: '600',
+    textAlign: 'center',
   },
 });
