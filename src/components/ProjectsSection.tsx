@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   View,
   Text,
@@ -8,7 +8,9 @@ import {
   TouchableOpacity,
   LayoutChangeEvent,
   Dimensions,
-  Linking
+  Linking,
+  Platform,
+  Animated,
 } from 'react-native';
 import { useTheme } from '../hooks/useTheme';
 import { SPACING, TYPOGRAPHY, BORDER_RADIUS } from '../constants/theme';
@@ -17,6 +19,7 @@ interface ProjectItemProps {
   id: string;
   title: string;
   description: string;
+  tags: string[];
   image: any;
   url?: string;
 }
@@ -26,37 +29,42 @@ const PROJECTS: ProjectItemProps[] = [
   {
     id: '1',
     title: 'Luxe Stay',
-    description: 'A full-featured hotel reservation application with payment integration',
+    description: 'A full-featured hotel reservation application with seamless payment integration and modern UI',
+    tags: ['React', 'Node.js', 'MongoDB', 'TypeScript', 'Tailwind CSS', 'Vercel', 'Express.js'],
     image: require('../assets/luxe-stay.png'),
-    url:'https://webdev-finals-frontend.vercel.app/'
+    url: 'https://webdev-finals-frontend.vercel.app/'
   },
   {
     id: '2',
     title: 'Flur-Chat',
-    description: 'A web-based AI chat application with real-time messaging features',
+    description: 'A web-based AI chat application with real-time messaging and natural language processing',
+    tags: ['React', 'AI', 'WebSockets', 'TypeScript', 'Vercel', 'Node.js', 'Groq API', 'Tailwind CSS'],
     image: require('../assets/flur-chat.png'),
-    url:'https://flur-chat.vercel.app/'
+    url: 'https://flur-chat.vercel.app/'
   },
   {
     id: '3',
     title: 'Pinoy Recipe Finder',
-    description: 'A web app to discover traditional Filipino recipes',
+    description: 'A web app to discover and share traditional Filipino recipes with community features',
+    tags: ['React', 'Vercel'],
     image: require('../assets/pinoy-recipe-finder.png'),
-    url:'https://anterola-recipe-finder.vercel.app/'
+    url: 'https://anterola-recipe-finder.vercel.app/'
   },
   {
     id: '4',
     title: 'StudySpot PH',
-    description: 'A web app to find and book study spaces in the Philippines',
+    description: 'A web app to find and book study spaces across the Philippines with smart filtering',
+    tags: ['React', 'Vercel', 'TypeScript'],
     image: require('../assets/study-spot.png'),
-    url:'https://anterola-midterm-project.vercel.app/'
+    url: 'https://anterola-midterm-project.vercel.app/'
   },
   {
     id: '5',
     title: 'CleanOps',
-    description: 'A web app for managing cleaning services and smart scheduling features',
-    image: require('../assets/clean-ops.png'), 
-    url:'https://clean-ops-alpha.vercel.app/'
+    description: 'A web app for managing cleaning services with intelligent scheduling and analytics',
+    tags: ['Next.js', 'Node.js', 'Firebase', 'Full Stack', 'Vercel', 'Tailwind CSS' , 'TypeScript'],
+    image: require('../assets/clean-ops.png'),
+    url: 'https://clean-ops-alpha.vercel.app/'
   }
 ];
 
@@ -71,83 +79,137 @@ interface ProjectCardProps {
   textSecondaryColor: string;
   accentColor: string;
   borderColor: string;
+  accentLight: string;
 }
 
-const ProjectCard = ({
+const ProjectCard = React.memo(({
   item,
   backgroundColor,
   textColor,
   textSecondaryColor,
   accentColor,
   borderColor,
+  accentLight,
 }: ProjectCardProps) => {
-  // Calculate card width (85% of screen)
+  const scaleAnim = React.useRef(new Animated.Value(1)).current;
   const screenWidth = Dimensions.get('window').width;
   const cardWidth = screenWidth * 0.85;
 
+  const handlePressIn = () => {
+    Animated.timing(scaleAnim, {
+      toValue: 0.97,
+      duration: 150,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    Animated.timing(scaleAnim, {
+      toValue: 1,
+      duration: 150,
+      useNativeDriver: true,
+    }).start();
+  };
+
   return (
-    <View
-      style={[
-        styles.card,
-        {
-          backgroundColor,
-          borderColor,
-          width: cardWidth,
-        },
-      ]}
+    <Animated.View
+      style={{
+        transform: [{ scale: scaleAnim }],
+        width: cardWidth,
+      }}
     >
-      <Image
-        source={item.image}
-        style={styles.cardImage}
-      />
-
-      <Text
-        style={[
-          styles.cardTitle,
-          {
-            color: textColor,
-          },
-        ]}
-      >
-        {item.title}
-      </Text>
-
-      <Text
-        style={[
-          styles.cardDescription,
-          {
-            color: textSecondaryColor,
-          },
-        ]}
-      >
-        {item.description}
-      </Text>
-
-      {/* Open project URL in browser */}
       <TouchableOpacity
-        onPress={() => {
-          if (item.url) {
-            Linking.openURL(item.url);
-          }
-        }}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        onPress={() => item.url && Linking.openURL(item.url)}
+        activeOpacity={0.8}
         style={[
-          styles.viewButton,
+          styles.card,
           {
-            backgroundColor: accentColor,
+            backgroundColor,
+            borderColor,
           },
         ]}
+        accessibilityLabel={`Project: ${item.title}`}
+        accessibilityRole="button"
+        accessibilityHint="Opens project details"
       >
-        <Text style={styles.viewButtonText}>View Project</Text>
+        <Image
+          source={item.image}
+          style={styles.cardImage}
+          resizeMode="cover"
+        />
+
+        <View style={styles.cardContent}>
+          <Text
+            style={[
+              styles.cardTitle,
+              {
+                color: textColor,
+              },
+            ]}
+            numberOfLines={2}
+          >
+            {item.title}
+          </Text>
+
+          <Text
+            style={[
+              styles.cardDescription,
+              {
+                color: textSecondaryColor,
+              },
+            ]}
+            numberOfLines={2}
+          >
+            {item.description}
+          </Text>
+
+          {/* Tech Stack Tags */}
+          <View style={styles.tagsContainer}>
+            {item.tags.map((tag, index) => (
+              <View
+                key={`${item.id}-tag-${index}`}
+                style={[
+                  styles.tag,
+                  { backgroundColor: accentLight },
+                ]}
+              >
+                <Text style={[styles.tagText, { color: accentColor }]}>
+                  {tag}
+                </Text>
+              </View>
+            ))}
+          </View>
+
+          {/* CTA Button */}
+          <TouchableOpacity
+            onPress={() => item.url && Linking.openURL(item.url)}
+            style={[
+              styles.viewButton,
+              {
+                backgroundColor: accentColor,
+              },
+            ]}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.viewButtonText}>View Project →</Text>
+          </TouchableOpacity>
+        </View>
       </TouchableOpacity>
-    </View>
+    </Animated.View>
   );
-};
+});
+
+ProjectCard.displayName = 'ProjectCard';
 
 export const ProjectsSection = ({ onLayout }: ProjectsSectionProps) => {
   const { colors } = useTheme();
-  // Calculate card width for snap-to-interval behavior (85% of screen + spacing)
   const screenWidth = Dimensions.get('window').width;
   const cardWidth = screenWidth * 0.85;
+  const snapToInterval = cardWidth + SPACING.lg;
+
+  const memoizedData = useMemo(() => PROJECTS, []);
 
   return (
     <View
@@ -157,25 +219,37 @@ export const ProjectsSection = ({ onLayout }: ProjectsSectionProps) => {
         { backgroundColor: colors.background },
       ]}
     >
-      <Text
-        style={[
-          styles.title,
-          {
-            color: colors.text,
-          },
-        ]}
-      >
-        Projects
-      </Text>
+      <View style={styles.headerContainer}>
+        <Text
+          style={[
+            styles.title,
+            {
+              color: colors.text,
+            },
+          ]}
+        >
+          Featured Projects
+        </Text>
+        <Text
+          style={[
+            styles.subtitle,
+            {
+              color: colors.textSecondary,
+            },
+          ]}
+        >
+          Swipe to explore
+        </Text>
+      </View>
 
-      {/* Horizontal carousel with snap-to-scroll */}
+      {/* Horizontal carousel with optimizations */}
       <FlatList
-        data={PROJECTS}
+        data={memoizedData}
         keyExtractor={(item) => item.id}
         horizontal
         showsHorizontalScrollIndicator={false}
         scrollEventThrottle={16}
-        snapToInterval={cardWidth + SPACING.lg}
+        snapToInterval={snapToInterval}
         decelerationRate="fast"
         snapToAlignment="start"
         contentContainerStyle={styles.listContainer}
@@ -187,9 +261,12 @@ export const ProjectsSection = ({ onLayout }: ProjectsSectionProps) => {
             textSecondaryColor={colors.textSecondary}
             accentColor={colors.accent}
             borderColor={colors.border}
+            accentLight={colors.accentLight}
           />
         )}
         ItemSeparatorComponent={() => <View style={{ width: SPACING.lg }} />}
+        scrollEnabled
+        removeClippedSubviews
       />
     </View>
   );
@@ -199,10 +276,18 @@ const styles = StyleSheet.create({
   container: {
     paddingVertical: SPACING.xxl,
   },
+  headerContainer: {
+    paddingHorizontal: SPACING.lg,
+    marginBottom: SPACING.lg,
+  },
   title: {
     ...TYPOGRAPHY.h2,
-    marginBottom: SPACING.xl,
-    paddingHorizontal: SPACING.lg,
+    fontWeight: '700',
+    marginBottom: SPACING.xs,
+  },
+  subtitle: {
+    ...TYPOGRAPHY.bodySmall,
+    fontWeight: '500',
   },
   listContainer: {
     paddingHorizontal: SPACING.lg,
@@ -210,33 +295,61 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: BORDER_RADIUS.lg,
     borderWidth: 1,
-    padding: SPACING.lg,
-    gap: SPACING.md,
+    overflow: 'hidden',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 4,
+      },
+    }),
   },
   cardImage: {
     width: '100%',
     height: 180,
-    borderRadius: BORDER_RADIUS.md,
-    marginBottom: SPACING.md,
+  },
+  cardContent: {
+    padding: SPACING.lg,
+    gap: SPACING.md,
   },
   cardTitle: {
     ...TYPOGRAPHY.h4,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   cardDescription: {
     ...TYPOGRAPHY.bodySmall,
     lineHeight: 20,
+  },
+  tagsContainer: {
+    flexDirection: 'row',
+    gap: SPACING.sm,
+    flexWrap: 'wrap',
+  },
+  tag: {
+    paddingVertical: SPACING.xs,
+    paddingHorizontal: SPACING.md,
+    borderRadius: BORDER_RADIUS.pill,
+  },
+  tagText: {
+    ...TYPOGRAPHY.label,
+    fontSize: 11,
+    fontWeight: '600',
   },
   viewButton: {
     paddingVertical: SPACING.md,
     paddingHorizontal: SPACING.lg,
     borderRadius: BORDER_RADIUS.md,
     alignItems: 'center',
+    justifyContent: 'center',
     marginTop: SPACING.md,
   },
   viewButtonText: {
     ...TYPOGRAPHY.body,
     color: '#FFFFFF',
-    fontWeight: '600',
+    fontWeight: '700',
   },
 });
