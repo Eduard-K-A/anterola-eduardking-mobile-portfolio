@@ -30,7 +30,7 @@ const PROJECTS: ProjectItemProps[] = [
     id: '1',
     title: 'Luxe Stay',
     description: 'A full-featured hotel reservation application with seamless payment integration and modern UI',
-    tags: ['React', 'Node.js', 'MongoDB', 'TypeScript', 'Tailwind CSS', 'Vercel', 'Express.js'],
+    tags: ['MERN', 'TypeScript', 'Tailwind CSS'],
     image: require('../assets/luxe-stay.png'),
     url: 'https://webdev-finals-frontend.vercel.app/'
   },
@@ -38,7 +38,7 @@ const PROJECTS: ProjectItemProps[] = [
     id: '2',
     title: 'Flur-Chat',
     description: 'A web-based AI chat application with real-time messaging and natural language processing',
-    tags: ['React', 'AI', 'WebSockets', 'TypeScript', 'Vercel', 'Node.js', 'Groq API', 'Tailwind CSS'],
+    tags: [ 'AI', 'WebSockets', 'TypeScript', 'Groq API'],
     image: require('../assets/flur-chat.png'),
     url: 'https://flur-chat.vercel.app/'
   },
@@ -62,7 +62,7 @@ const PROJECTS: ProjectItemProps[] = [
     id: '5',
     title: 'CleanOps',
     description: 'A web app for managing cleaning services with intelligent scheduling and analytics',
-    tags: ['Next.js', 'Node.js', 'Firebase', 'Full Stack', 'Vercel', 'Tailwind CSS' , 'TypeScript'],
+    tags: ['Next.js', 'Node.js', 'Tailwind CSS' , 'TypeScript'],
     image: require('../assets/clean-ops.png'),
     url: 'https://clean-ops-alpha.vercel.app/'
   }
